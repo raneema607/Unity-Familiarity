@@ -5,18 +5,27 @@ public class House : MonoBehaviour
 {
     float movementX;
     float movementY;
-    private float speed = 6;
+    bool jumping = false;
+    bool touchingGround;
 
-    private Rigidbody2D rb;
+    [SerializeField] float speed = 6f;
+    [SerializeField] float jumpPower = 5f;
+
+    private Animator animator;
+
+
+    [SerializeField] Rigidbody2D rb;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
+        animator = GetComponent<Animator>();
     }
 
     // Update is called once per frame
     void Update()
     {
+        animator.SetBool("walking", movementX != 0f);
 
     }
     void OnMove(InputValue value)
@@ -24,27 +33,53 @@ public class House : MonoBehaviour
         Vector2 v = value.Get<Vector2>();
 
         movementX = v.x;
-        //movementY = v.y;
+        movementY = v.y;
         Debug.Log(v);
+
+    }
+
+    void OnJump()
+    {
+    if (touchingGround)
+            {
+            jumping = true;
+            }   
 
     }
 
     void FixedUpdate()
     {
-        float XmoveDistance = movementX * speed * Time.fixedDeltaTime;
-        float YmoveDistance = movementY * speed * Time.fixedDeltaTime;
+        float XmoveDistance = movementX * speed;
+        float YmoveDistance = movementY * speed;
 
-        //transform.position = new Vector2(transform.position.x + XmoveDistance, transform.position.y + YmoveDistance);
-        //rb.LinearVelocity= new Vector2(XmoveDistance, YmoveDistance);
         rb.linearVelocityX = XmoveDistance;
+        
+        if (touchingGround && jumping)
+        {
+            rb.AddForce(jumpPower * Vector2.up, ForceMode2D.Impulse);
+            jumping = false;
+        }
+        
+        
     }
-    //if(collision.gameObject.CompareTag(""))
+
+    
     private void OnCollisionEnter2D(Collision2D collision)
     {
-       // if (collision.gameObject.CompareTag("ground"))
-       //  {
-       //      rb.AddForce(new Vector2(0, 500));
-       // }
-
+        if (collision.gameObject.CompareTag("ground"))
+        {
+            touchingGround = true;
+            
+        }
     }
+    
+    private void OnCollisionExit2D(Collision2D collision)
+    {
+        if (collision.gameObject.CompareTag("ground"))
+        {
+            touchingGround = false;
+        }
+    }
+
+
 }
