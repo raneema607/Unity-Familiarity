@@ -12,6 +12,8 @@ public class House : MonoBehaviour
     [SerializeField] float jumpPower = 5f;
 
     private Animator animator;
+    private SpriteRenderer spriteRenderer;
+    private int coinScore;
 
 
     [SerializeField] Rigidbody2D rb;
@@ -20,12 +22,18 @@ public class House : MonoBehaviour
     {
         rb = GetComponent<Rigidbody2D>();
         animator = GetComponent<Animator>();
+        spriteRenderer = GetComponent<SpriteRenderer>();
     }
 
     // Update is called once per frame
     void Update()
     {
         animator.SetBool("walking", movementX != 0f);
+        if(rb.linearVelocityX !=0)
+        {
+            spriteRenderer.flipX = rb.linearVelocityX < 0f;
+            
+        }
 
     }
     void OnMove(InputValue value)
@@ -72,7 +80,7 @@ public class House : MonoBehaviour
             
         }
     }
-    
+
     private void OnCollisionExit2D(Collision2D collision)
     {
         if (collision.gameObject.CompareTag("ground"))
@@ -80,6 +88,11 @@ public class House : MonoBehaviour
             touchingGround = false;
         }
     }
-
+    
+    public void AddCoin (int value)
+    {
+        coinScore += value;
+        Debug.Log(value);
+    }
 
 }
